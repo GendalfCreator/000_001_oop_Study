@@ -4,20 +4,34 @@ using namespace std;
 
 class Object {
 public:
-  int pivotX;
-  int pivotY;
-  int pivotZ;
-
-  Object* parent;
-  Object* child = NULL;
 
   void Moove (int shiftX, int shiftY, int shiftZ) {
-    pivotX += parent->pivotX + shiftX;
-    pivotY += parent->pivotY + shiftY;
-    pivotZ += parent->pivotZ + shiftZ;
-    if (child != NULL) {
-        child->Moove(shiftX, shiftY, shiftZ);
+    if (parent != NULL) {
+        pivotX += parent->pivotX + shiftX;
+        pivotY += parent->pivotY + shiftY;
+        pivotZ += parent->pivotZ + shiftZ;
       }
+    else {
+        pivotX += shiftX;
+        pivotY += shiftY;
+        pivotZ += shiftZ;
+      }
+
+    if (child != NULL) {
+        child->MooveChild(shiftX, shiftY, shiftZ);
+      }
+    else {
+        pivotX += shiftX;
+        pivotY += shiftY;
+        pivotZ += shiftZ;
+      }
+  }
+
+  void MooveChild (int shiftX, int shiftY, int shiftZ) {
+    pivotX += shiftX;
+    pivotY += shiftY;
+    pivotZ += shiftZ;
+
   }
 
   void ShowCoordinates () {
@@ -30,6 +44,18 @@ public:
     pivotZ = z;
   }
 
+  void SetIerarchy (Object* parent, Object* child) {
+    this->parent = parent;
+    this->child = child;
+  }
+
+private:
+  int pivotX;
+  int pivotY;
+  int pivotZ;
+  Object* parent;
+  Object* child = NULL;
+
 };
 
 int main()
@@ -37,19 +63,19 @@ int main()
   Object world;
   Object object1;
   Object object2;
-  int shiftX = 9;
+  int shiftX = 10;
   int shiftY = 10;
   int shiftZ = 10;
 
-  object1.parent = &world;
-  object1.child = &object2;
-  object2.parent = &object1;
+  world.SetIerarchy(NULL, &object1);
+  object1.SetIerarchy(&world, &object2);
+  object2.SetIerarchy(&object1, NULL);
 
-  world.SetCoordinates(1, 0, 0);
-  object1.SetCoordinates(0 , 0, 0);
+  world.SetCoordinates(0, 0, 0);
+  object1.SetCoordinates(1 , 1, 1);
   object2.SetCoordinates(2, 2, 2);
 
-  object1.Moove(shiftX, shiftY, shiftZ);
+  world.Moove(shiftX, shiftY, shiftZ);
 
   world.ShowCoordinates();
   object1.ShowCoordinates();
